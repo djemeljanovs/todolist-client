@@ -25,6 +25,7 @@ const useStyles = createUseStyles<string, TodoListInputProps>({
     },
     input: {
         height: 70,
+        width: '100%',
         boxSizing: "border-box",
         border: '3px solid lightgrey',
         borderRadius: 10,

@@ -18,7 +18,6 @@ const useStyles = createUseStyles<string, ButtonProps>({
         textTransform: 'uppercase',
         userSelect: "none",
         cursor: 'pointer',
-        minWidth: 0,
     }
 });
 

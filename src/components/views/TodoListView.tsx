@@ -7,8 +7,10 @@ import {ApiStatus, useApi} from "../providers/ApiProvider";
 
 const useStyles = createUseStyles({
     wrapper: {
+        width: 'fit-content',
         maxWidth: 600,
         margin: '0 auto',
+        padding: 15,
     },
 });
 
