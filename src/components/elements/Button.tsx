@@ -9,7 +9,7 @@ const useStyles = createUseStyles<string, ButtonProps>({
         alignItems: 'center',
         color: 'white',
         padding: 20,
-        background: props => props.disabled ? 'lightgrey' : '#5071FD',
+        background: props => props.disabled ? 'grey' : '#5071FD',
         border: 'none',
         fontSize: 24,
         fontWeight: 'bold',
@@ -18,6 +18,7 @@ const useStyles = createUseStyles<string, ButtonProps>({
         textTransform: 'uppercase',
         userSelect: "none",
         cursor: 'pointer',
+        minWidth: 0,
     }
 });
 

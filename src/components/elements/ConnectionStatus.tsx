@@ -35,7 +35,7 @@ export default function ConnectionStatus() {
     return (
         <div className={classes.status}>
             <div className={classes.icon} />
-            <h4>{ApiStatus[status]}</h4>
+            <h4>{status.toString().toUpperCase()}</h4>
         </div>
     )
 }

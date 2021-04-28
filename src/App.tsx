@@ -1,5 +1,5 @@
 import React from 'react';
-import TodoListView from "./views/TodoListView";
+import TodoListView from "./components/views/TodoListView";
 import ApiProvider from "./components/providers/ApiProvider";
 
 function App() {
