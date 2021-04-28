@@ -39,7 +39,7 @@ export function useApi(): ApiContextProps {
     }
     return context;
 }
-const socket = io('localhost');
+const socket = io('https://ubiquity-todolist-server.herokuapp.com/');
 
 export type TodoItem = {
     _id: string;
