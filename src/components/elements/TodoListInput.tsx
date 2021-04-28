@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useEffect, useState} from "react";
 import {createUseStyles} from "react-jss";
 
 interface TodoListInputProps {
@@ -8,6 +8,7 @@ interface TodoListInputProps {
 
 const useStyles = createUseStyles<string, TodoListInputProps>({
     root: {
+        width: '100%',
         position: 'relative',
         marginRight: 10,
         minWidth: 0,
@@ -48,17 +49,30 @@ export default function TodoListInput({
                                           ...props
 }: TodoListInputProps & React.InputHTMLAttributes<HTMLInputElement>) {
     const classes = useStyles({isControlled, isControlledByCurrentUser});
+    const [value, setValue] = useState(props.value);
+
+    useEffect(() => {
+        setValue(props.value);
+    }, [props.value])
+
     return (
         <div className={classes.root}>
             {isControlled && <div className={classes.badge}>
                 {isControlledByCurrentUser ? 'You are editing' : 'Someone else is typing'}
             </div>}
             <input
-                maxLength={15}
+                maxLength={30}
                 type="text"
                 className={classes.input}
                 placeholder={"Empty item"}
                 {...props}
+                value={value}
+                onChange={event => {
+                    if(props.onChange) {
+                        props.onChange(event);
+                    }
+                    setValue(event.target.value);
+                }}
             />
         </div>
     )

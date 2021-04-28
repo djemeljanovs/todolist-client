@@ -1,15 +1,17 @@
-import React from 'react';
+import React, {ChangeEvent} from 'react';
 import {createUseStyles} from "react-jss";
 import {TodoItem, useApi} from "../providers/ApiProvider";
 import DeleteIcon from "./icons/DeleteIcon";
 import Button from "./Button";
 import TodoListInput from "./TodoListInput";
+import {debounce} from "../../utils/debounce";
 
 type TodoListItemProps = TodoItem;
 
 const useStyles = createUseStyles<string, TodoListItemProps>({
     root: {
         display: 'flex',
+        width: '100%',
     },
 });
 
@@ -31,8 +33,8 @@ export default function TodoListItem(props: TodoListItemProps) {
         blurItem(props._id);
     }
 
-    function onChange(text: string) {
-        updateItem(props._id, text);
+    function onChange(event: ChangeEvent<HTMLInputElement>) {
+        updateItem(props._id, event.target.value);
     }
 
     return (
@@ -40,7 +42,7 @@ export default function TodoListItem(props: TodoListItemProps) {
             <TodoListInput
                 disabled={isControlledByOtherUser}
                 value={props.text}
-                onChange={event => onChange(event.target.value)}
+                onChange={debounce(onChange, 1000)}
                 onFocus={onFocus}
                 onBlur={onBlur}
                 isControlled={props.controlledBy != null}
