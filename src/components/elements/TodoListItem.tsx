@@ -17,8 +17,9 @@ const useStyles = createUseStyles<string, TodoListItemProps>({
 
 export default function TodoListItem(props: TodoListItemProps) {
     const {userId, removeItem, focusItem, blurItem, updateItem} = useApi();
-    const isControlledByOtherUser = props.controlledBy != null && props.controlledBy !== userId;
-    const isControlledByCurrentUser = props.controlledBy != null && props.controlledBy === userId;
+    const isControlled = props.controlledBy != null;
+    const isControlledByOtherUser = isControlled && props.controlledBy !== userId;
+    const isControlledByCurrentUser = isControlled && props.controlledBy === userId;
     const classes = useStyles(props);
 
     function onRemove() {
@@ -45,7 +46,7 @@ export default function TodoListItem(props: TodoListItemProps) {
                 onChange={debounce(onChange, 1000)}
                 onFocus={onFocus}
                 onBlur={onBlur}
-                isControlled={props.controlledBy != null}
+                isControlled={isControlled}
                 isControlledByCurrentUser={isControlledByCurrentUser}
             />
             <Button onClick={onRemove} disabled={isControlledByOtherUser} tabIndex={-1}>

@@ -1,21 +1,36 @@
 import React, {ReactElement, useCallback, useEffect, useState} from 'react'
 import io from "socket.io-client";
 
+enum ApiEvent {
+    LIST = "item/list",
+    CREATE = "item/create",
+    FOCUS = "item/focus",
+    BLUR = "item/blur",
+    UPDATE = "item/update",
+    REMOVE = "item/remove",
+}
+
 export enum ApiStatus {
-    INITIALIZING= "Initializing",
-    CONNECTED= "Connected",
-    DISCONNECTED= "Disconnected",
-    ERROR = "Connection Error",
+    INITIALIZING,
+    CONNECTED,
+    DISCONNECTED,
+    ERROR,
+}
+
+export type TodoItem = {
+    _id: string;
+    text: string;
+    controlledBy: string | null;
 }
 
 interface ApiContextProps {
     userId: string;
     status: ApiStatus;
     createItem: () => void,
-    focusItem: (id: any) => void,
-    blurItem: (id: any) => void,
-    updateItem: (id: any, text: string) => void,
-    removeItem: (id: any) => void,
+    focusItem: (id: string) => void,
+    blurItem: (id: string) => void,
+    updateItem: (id: string, text: string) => void,
+    removeItem: (id: string) => void,
     items: TodoItem[];
 }
 
@@ -32,29 +47,7 @@ const defaultValue: ApiContextProps = {
 
 const ApiContext = React.createContext<ApiContextProps>(defaultValue);
 
-export function useApi(): ApiContextProps {
-    const context = React.useContext<ApiContextProps>(ApiContext);
-    if(!context) {
-        throw new Error("useApi must be used within ApiProvider")
-    }
-    return context;
-}
 const socket = io('https://ubiquity-todolist-server.herokuapp.com/');
-
-export type TodoItem = {
-    _id: string;
-    text: string;
-    controlledBy: string;
-}
-
-enum EventNames {
-    LIST = "item/list",
-    CREATE = "item/create",
-    FOCUS = "item/focus",
-    BLUR = "item/blur",
-    UPDATE = "item/update",
-    REMOVE = "item/remove",
-}
 
 export default function ApiProvider({ children }: {children: ReactElement}) {
     const [status, setStatus] = useState<ApiStatus>(ApiStatus.INITIALIZING);
@@ -70,13 +63,13 @@ export default function ApiProvider({ children }: {children: ReactElement}) {
         socket.on("disconnect", () => {
             setStatus(ApiStatus.DISCONNECTED);
         });
-        socket.on(EventNames.LIST, (data: TodoItem[]) => {
+        socket.on(ApiEvent.LIST, (data: TodoItem[]) => {
             setItems(data);
         });
-        socket.on(EventNames.CREATE, (data: TodoItem) => {
+        socket.on(ApiEvent.CREATE, (data: TodoItem) => {
             setItems(items => items.concat(data));
         })
-        socket.on(EventNames.UPDATE, (data: TodoItem) => {
+        socket.on(ApiEvent.UPDATE, (data: TodoItem) => {
             console.log("update received: " + JSON.stringify(data));
             setItems(items => {
                 const updated = [...items];
@@ -89,21 +82,23 @@ export default function ApiProvider({ children }: {children: ReactElement}) {
                 return updated;
             });
         });
-        socket.on(EventNames.REMOVE, (data: TodoItem) => {
+        socket.on(ApiEvent.REMOVE, (data: TodoItem) => {
             setItems(items => items.filter(item => item._id !== data._id));
         })
     }, []);
 
-    const sendId = useCallback((event: EventNames, id: string) => {
+    const sendId = useCallback((event: ApiEvent, id: string) => {
         socket.emit(event, {id});
     }, []);
 
+    const createIdEventHandler = (event: ApiEvent) => (id: string) => sendId(event, id);
+
     const createItem = useCallback(() => {
-        socket.emit(EventNames.CREATE);
+        socket.emit(ApiEvent.CREATE);
     }, []);
 
     const updateItem = useCallback((id: any, text: string) => {
-        socket.emit(EventNames.UPDATE, {id, text});
+        socket.emit(ApiEvent.UPDATE, {id, text});
     }, []);
 
     return (
@@ -112,12 +107,20 @@ export default function ApiProvider({ children }: {children: ReactElement}) {
             status,
             createItem,
             updateItem,
-            focusItem: (id: string) => sendId(EventNames.FOCUS, id),
-            blurItem: (id: string) => sendId(EventNames.BLUR, id),
-            removeItem: (id: string) => sendId(EventNames.REMOVE, id),
+            focusItem: createIdEventHandler(ApiEvent.FOCUS),
+            blurItem: createIdEventHandler(ApiEvent.BLUR),
+            removeItem: createIdEventHandler(ApiEvent.REMOVE),
             items,
         }}>
             {children}
         </ApiContext.Provider>
     );
+}
+
+export function useApi(): ApiContextProps {
+    const context = React.useContext<ApiContextProps>(ApiContext);
+    if(!context) {
+        throw new Error("useApi must be used within ApiProvider")
+    }
+    return context;
 }

@@ -17,25 +17,27 @@ const useStyles = createUseStyles<string, { color: string }>({
     },
 });
 
-function getStatusColor(status: ApiStatus) {
-    switch (status) {
-        case ApiStatus.INITIALIZING:
-            return "yellow";
-        case ApiStatus.CONNECTED:
-            return "green";
-        case ApiStatus.DISCONNECTED:
-            return "black";
-        case ApiStatus.ERROR:
-            return "red";
-    }
+const StatusColors: Record<ApiStatus, string> = {
+    [ApiStatus.INITIALIZING]: "yellow",
+    [ApiStatus.CONNECTED]: "green",
+    [ApiStatus.DISCONNECTED]: "black",
+    [ApiStatus.ERROR]: "red"
 }
+
+const StatusLabels: Record<ApiStatus, string> = {
+    [ApiStatus.INITIALIZING]: "Connecting",
+    [ApiStatus.CONNECTED]: "Connected",
+    [ApiStatus.DISCONNECTED]: "Disconnected",
+    [ApiStatus.ERROR]: "Connection Error"
+}
+
 export default function ConnectionStatus() {
     const {status} = useApi();
-    const classes = useStyles({color: getStatusColor(status)});
+    const classes = useStyles({color: StatusColors[status]});
     return (
         <div className={classes.status}>
             <div className={classes.icon} />
-            <h4>{status.toString().toUpperCase()}</h4>
+            <h4>{StatusLabels[status].toUpperCase()}</h4>
         </div>
     )
 }
